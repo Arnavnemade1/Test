@@ -1,0 +1,319 @@
+@font-face {
+  font-family: 'Georgia';
+  src: local('Georgia');
+}
+
+:root {
+  --gold: #c9a86a;
+  --violet: #a06eff;
+  --violet-soft: rgba(160, 110, 255, 0.35);
+  --ink: #05050a;
+  --panel: #0d0c14;
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --text: #f2eefb;
+  --text-dim: #9c94b3;
+}
+
+/* ---------- Password Gate ---------- */
+
+.gate-screen {
+  position: relative;
+  width: 100vw;
+  height: 100svh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink);
+}
+
+.gate-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(160, 110, 255, 0.18), transparent 55%),
+    radial-gradient(circle at 20% 80%, rgba(201, 168, 106, 0.08), transparent 50%),
+    #05050a;
+}
+
+.gate-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 220px 80px rgba(0, 0, 0, 0.85);
+}
+
+.gate-intro-player {
+  position: relative;
+  width: min(760px, 88vw);
+  aspect-ratio: 16 / 9;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px var(--panel-border),
+    0 30px 80px -20px rgba(160, 110, 255, 0.35),
+    0 10px 40px rgba(0, 0, 0, 0.6);
+  margin-bottom: 36px;
+}
+
+.gate-form {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 40px 40px;
+  z-index: 1;
+}
+
+.gate-label {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+  font-size: 15px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.gate-input {
+  width: 220px;
+  text-align: center;
+  font-size: 28px;
+  letter-spacing: 10px;
+  padding: 14px 12px 10px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--panel-border);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gate-input::placeholder {
+  color: rgba(242, 238, 251, 0.25);
+  letter-spacing: 8px;
+}
+
+.gate-input:focus {
+  border-color: var(--violet);
+  box-shadow: 0 6px 20px -6px var(--violet-soft);
+}
+
+.gate-input-error {
+  border-color: #ff5f6d;
+}
+
+.gate-error {
+  margin: 0;
+  font-size: 13px;
+  color: #ff8a90;
+  letter-spacing: 0.5px;
+}
+
+.gate-button {
+  margin-top: 10px;
+  padding: 12px 40px;
+  background: linear-gradient(135deg, #7c4dff, #a06eff);
+  border: none;
+  border-radius: 2px;
+  color: #fff;
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(160, 110, 255, 0.4);
+}
+
+/* ---------- Gallery ---------- */
+
+.gallery-screen {
+  position: relative;
+  min-height: 100svh;
+  padding: 40px 6vw 80px;
+  color: var(--text);
+}
+
+.gallery-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(160, 110, 255, 0.12), transparent 45%),
+    radial-gradient(circle at 85% 100%, rgba(201, 168, 106, 0.08), transparent 45%),
+    var(--ink);
+}
+
+.gallery-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--panel-border);
+  padding-bottom: 20px;
+}
+
+.gallery-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 30px;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  margin: 0;
+  color: var(--text);
+  text-shadow: 0 0 30px var(--violet-soft);
+}
+
+.lock-button {
+  padding: 10px 22px;
+  background: transparent;
+  border: 1px solid var(--panel-border);
+  border-radius: 2px;
+  color: var(--text-dim);
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.25s ease, color 0.25s ease;
+}
+
+.lock-button:hover {
+  border-color: var(--violet);
+  color: var(--text);
+}
+
+.dropzone {
+  position: relative;
+  border: 1px dashed var(--panel-border);
+  border-radius: 6px;
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  margin-bottom: 40px;
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+}
+
+.dropzone:hover,
+.dropzone-active {
+  border-color: var(--violet);
+}
+
+.dropzone-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, var(--violet-soft), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.dropzone:hover .dropzone-glow,
+.dropzone-active .dropzone-glow {
+  opacity: 0.5;
+}
+
+.dropzone-text {
+  position: relative;
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.gallery-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--text-dim);
+  padding: 60px 0;
+  letter-spacing: 1px;
+}
+
+.gallery-item {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--panel);
+  box-shadow: 0 12px 30px -12px rgba(0, 0, 0, 0.6);
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: saturate(1.05) contrast(1.03);
+  transition: transform 0.5s ease, filter 0.5s ease;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.06);
+  filter: saturate(1.15) contrast(1.05) brightness(1.05);
+}
+
+.gallery-item-overlay {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.gallery-item:hover .gallery-item-overlay {
+  opacity: 1;
+}
+
+.gallery-item-name {
+  font-size: 12px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gallery-item-delete {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ff8a90;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 2px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.gallery-item-delete:hover {
+  border-color: #ff5f6d;
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(6px);
+}
+
+.lightbox img {
+  max-width: 88vw;
+  max-height: 86vh;
+  border-radius: 4px;
+  box-shadow: 0 40px 100px -20px rgba(160, 110, 255, 0.4);
+}
