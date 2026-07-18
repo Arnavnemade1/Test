@@ -1,0 +1,87 @@
+// Prisma schema for the encrypted file vault.
+// SQLite is used as a local, file-based datastore per project requirements.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  DENIED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  role         Role     @default(USER)
+  passwordHash String? // only set for the admin account
+  createdAt    DateTime @default(now())
+
+  files      FileObject[]
+  auditLogs  AuditLog[]
+  tokens     AccessToken[]
+}
+
+model AccessRequest {
+  id        String        @id @default(cuid())
+  name      String
+  email     String
+  reason    String
+  status    RequestStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  decidedAt DateTime?
+  decidedBy String?
+
+  token AccessToken?
+}
+
+model AccessToken {
+  id          String    @id @default(cuid())
+  tokenHash   String    @unique
+  requestId   String?   @unique
+  request     AccessRequest? @relation(fields: [requestId], references: [id])
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id])
+  used        Boolean   @default(false)
+  usedAt      DateTime?
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime
+}
+
+model FileObject {
+  id            String   @id @default(cuid())
+  ownerId       String
+  owner         User     @relation(fields: [ownerId], references: [id])
+  originalName  String
+  mimeType      String
+  size          Int
+  storagePath   String
+  iv            String
+  authTag       String
+  encryptedKey  String // AES key wrapped with RSA-OAEP public key
+  isImage       Boolean  @default(false)
+  createdAt     DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  detail    String?
+  ip        String?
+  createdAt DateTime @default(now())
+}
