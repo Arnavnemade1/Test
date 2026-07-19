@@ -1,5 +1,6 @@
 // Prisma schema for the encrypted file vault.
-// SQLite is used as a local, file-based datastore per project requirements.
+// Postgres (Vercel Postgres / Neon) backs both local dev and production —
+// pooled connections for normal queries, a direct connection for migrations.
 
 generator client {
   provider = "prisma-client-js"
@@ -7,8 +8,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 enum Role {
@@ -68,7 +70,7 @@ model FileObject {
   originalName  String
   mimeType      String
   size          Int
-  storagePath   String
+  storageUrl    String   // Vercel Blob URL (or local file path in dev fallback mode)
   iv            String
   authTag       String
   encryptedKey  String // AES key wrapped with RSA-OAEP public key

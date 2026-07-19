@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFile, unlink } from "fs/promises";
-import path from "path";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { decryptBuffer } from "@/lib/crypto";
+import { getObject, deleteObject } from "@/lib/storage";
 import { logAudit } from "@/lib/audit";
-
-function storageDir() {
-  return path.resolve(process.cwd(), process.env.STORAGE_DIR || "./storage");
-}
 
 export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -24,7 +19,7 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ id: string
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const ciphertext = await readFile(path.join(storageDir(), record.storagePath));
+  const ciphertext = await getObject(record.storageUrl);
   const plaintext = decryptBuffer({
     ciphertext,
     iv: record.iv,
@@ -53,7 +48,7 @@ export async function DELETE(_req: NextRequest, ctx: { params: Promise<{ id: str
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  await unlink(path.join(storageDir(), record.storagePath)).catch(() => {});
+  await deleteObject(record.storageUrl);
   await prisma.fileObject.delete({ where: { id } });
   await logAudit({ userId: session.sub, action: "FILE_DELETED", detail: record.originalName });
 

@@ -20,18 +20,31 @@ const IV_LENGTH = 12; // recommended for GCM
 let cachedPublicKey: string | null = null;
 let cachedPrivateKey: string | null = null;
 
+// `keys/` is gitignored (it holds a private key) so it never reaches a Vercel
+// deployment. In production the PEMs are supplied via env vars instead — with
+// literal "\n" sequences (how multi-line values survive most dashboard/CLI env
+// var inputs) unescaped back into real newlines. Local dev keeps reading the
+// files that `npm run generate:keys` writes, so nothing else has to change.
 function loadPublicKey(): string {
   if (!cachedPublicKey) {
-    const p = path.resolve(process.cwd(), process.env.RSA_PUBLIC_KEY_PATH || "./keys/rsa_public.pem");
-    cachedPublicKey = readFileSync(p, "utf8");
+    if (process.env.RSA_PUBLIC_KEY) {
+      cachedPublicKey = process.env.RSA_PUBLIC_KEY.replace(/\\n/g, "\n");
+    } else {
+      const p = path.resolve(process.cwd(), process.env.RSA_PUBLIC_KEY_PATH || "./keys/rsa_public.pem");
+      cachedPublicKey = readFileSync(p, "utf8");
+    }
   }
   return cachedPublicKey;
 }
 
 function loadPrivateKey(): string {
   if (!cachedPrivateKey) {
-    const p = path.resolve(process.cwd(), process.env.RSA_PRIVATE_KEY_PATH || "./keys/rsa_private.pem");
-    cachedPrivateKey = readFileSync(p, "utf8");
+    if (process.env.RSA_PRIVATE_KEY) {
+      cachedPrivateKey = process.env.RSA_PRIVATE_KEY.replace(/\\n/g, "\n");
+    } else {
+      const p = path.resolve(process.cwd(), process.env.RSA_PRIVATE_KEY_PATH || "./keys/rsa_private.pem");
+      cachedPrivateKey = readFileSync(p, "utf8");
+    }
   }
   return cachedPrivateKey;
 }

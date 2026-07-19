@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
-import { randomUUID } from "crypto";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { encryptBuffer } from "@/lib/crypto";
+import { putObject } from "@/lib/storage";
 import { logAudit } from "@/lib/audit";
 
 const MAX_FILE_BYTES = 25 * 1024 * 1024; // 25MB per file
-
-function storageDir() {
-  return path.resolve(process.cwd(), process.env.STORAGE_DIR || "./storage");
-}
 
 export async function GET() {
   const session = await getSession();
@@ -51,12 +45,7 @@ export async function POST(req: NextRequest) {
 
   const plaintext = Buffer.from(await file.arrayBuffer());
   const encrypted = encryptBuffer(plaintext);
-
-  const dir = storageDir();
-  await mkdir(dir, { recursive: true });
-  const storageId = randomUUID();
-  const storagePath = path.join(dir, `${storageId}.enc`);
-  await writeFile(storagePath, encrypted.ciphertext);
+  const storageUrl = await putObject(encrypted.ciphertext);
 
   const record = await prisma.fileObject.create({
     data: {
@@ -64,7 +53,7 @@ export async function POST(req: NextRequest) {
       originalName: file.name.slice(0, 255),
       mimeType: file.type || "application/octet-stream",
       size: file.size,
-      storagePath: `${storageId}.enc`,
+      storageUrl,
       iv: encrypted.iv,
       authTag: encrypted.authTag,
       encryptedKey: encrypted.encryptedKey,
